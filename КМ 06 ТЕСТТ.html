@@ -1,0 +1,856 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>КМ-06 Тест — 100 сұрақ</title>
+  <style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg:#0d1117; --surface:#161b22; --card:#1c2128; --border:#30363d;
+  --accent:#58a6ff; --accent2:#3fb950; --danger:#f85149;
+  --text:#e6edf3; --muted:#8b949e; --radius:14px; --shadow:0 8px 32px rgba(0,0,0,.45);
+}
+html,body { height:100%; font-family:'Segoe UI',system-ui,sans-serif; background:var(--bg); color:var(--text); overflow-x:hidden; }
+.hidden { display:none !important; }
+#splash { min-height:100vh; display:flex; align-items:center; justify-content:center; position:relative; overflow:hidden; }
+.bg-grid { position:absolute; inset:0; background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px); background-size:40px 40px; opacity:.35; pointer-events:none; }
+.splash-inner { position:relative; z-index:1; text-align:center; padding:3rem 2rem; max-width:520px; animation:fadeUp .6s ease both; }
+.badge { display:inline-block; background:linear-gradient(135deg,var(--accent),#1f6feb); color:#fff; font-size:.75rem; font-weight:700; letter-spacing:.12em; padding:.35rem .9rem; border-radius:100px; margin-bottom:1.5rem; text-transform:uppercase; }
+.splash-inner h1 { font-size:clamp(1.8rem,5vw,2.8rem); font-weight:800; line-height:1.2; margin-bottom:1rem; background:linear-gradient(135deg,#e6edf3,var(--accent)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; }
+.subtitle { color:var(--muted); font-size:1rem; margin-bottom:2rem; }
+.meta-row { display:flex; gap:1.5rem; justify-content:center; flex-wrap:wrap; margin-bottom:2.5rem; color:var(--muted); font-size:.9rem; }
+.btn-primary { display:inline-flex; align-items:center; gap:.5rem; background:var(--accent); color:#0d1117; font-size:1rem; font-weight:700; padding:.85rem 2.2rem; border:none; border-radius:100px; cursor:pointer; transition:transform .15s,box-shadow .15s,background .15s; }
+.btn-primary:hover { background:#79c0ff; transform:translateY(-2px); box-shadow:0 8px 24px rgba(88,166,255,.35); }
+.btn-outline { display:inline-flex; align-items:center; background:transparent; color:var(--accent); font-size:.95rem; font-weight:600; padding:.8rem 2rem; border:1.5px solid var(--accent); border-radius:100px; cursor:pointer; transition:background .15s; margin-top:.8rem; }
+.btn-outline:hover { background:rgba(88,166,255,.08); }
+#quiz { min-height:100vh; display:flex; flex-direction:column; }
+.quiz-header { display:flex; align-items:center; gap:1rem; padding:1rem 1.5rem; background:var(--surface); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:10; }
+.header-badge { font-size:.7rem; font-weight:800; letter-spacing:.1em; background:var(--accent); color:#0d1117; padding:.25rem .65rem; border-radius:6px; text-transform:uppercase; }
+.progress-wrap { flex:1; display:flex; align-items:center; gap:.8rem; }
+.progress-bar-bg { flex:1; height:6px; background:var(--border); border-radius:100px; overflow:hidden; }
+.progress-bar-fill { height:100%; background:linear-gradient(90deg,var(--accent),var(--accent2)); border-radius:100px; transition:width .4s ease; width:0%; }
+.progress-label { font-size:.8rem; color:var(--muted); white-space:nowrap; }
+.score-chip { background:rgba(63,185,80,.15); color:var(--accent2); font-size:.85rem; font-weight:700; padding:.3rem .8rem; border-radius:100px; border:1px solid rgba(63,185,80,.3); }
+.quiz-main { flex:1; display:flex; align-items:flex-start; justify-content:center; padding:2rem 1rem; }
+.question-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:2rem; width:100%; max-width:680px; box-shadow:var(--shadow); }
+.q-number { font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; color:var(--accent); margin-bottom:.75rem; }
+.q-text { font-size:1.15rem; font-weight:600; line-height:1.55; margin-bottom:1.5rem; }
+.options-grid { display:flex; flex-direction:column; gap:.65rem; }
+.option-btn { display:flex; align-items:center; gap:.9rem; width:100%; background:var(--surface); border:1.5px solid var(--border); border-radius:10px; padding:.85rem 1.1rem; color:var(--text); font-size:.95rem; font-weight:500; cursor:pointer; text-align:left; transition:border-color .15s,background .15s,transform .1s; }
+.option-btn:hover:not(:disabled) { border-color:var(--accent); background:rgba(88,166,255,.07); transform:translateX(3px); }
+.opt-label { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; background:var(--border); border-radius:6px; font-size:.8rem; font-weight:800; color:var(--muted); flex-shrink:0; transition:background .15s,color .15s; }
+.option-btn.correct { border-color:var(--accent2); background:rgba(63,185,80,.1); }
+.option-btn.correct .opt-label { background:var(--accent2); color:#0d1117; }
+.option-btn.wrong { border-color:var(--danger); background:rgba(248,81,73,.1); }
+.option-btn.wrong .opt-label { background:var(--danger); color:#fff; }
+.feedback { margin-top:1.2rem; padding:.75rem 1rem; border-radius:8px; font-size:.9rem; font-weight:600; }
+.correct-fb { background:rgba(63,185,80,.12); color:var(--accent2); border:1px solid rgba(63,185,80,.3); }
+.wrong-fb { background:rgba(248,81,73,.12); color:#f85149; border:1px solid rgba(248,81,73,.3); }
+.btn-next { display:block; width:100%; margin-top:1.2rem; padding:.9rem; background:var(--accent); color:#0d1117; font-size:.95rem; font-weight:700; border:none; border-radius:10px; cursor:pointer; transition:background .15s; }
+.btn-next:hover { background:#79c0ff; }
+#result { min-height:100vh; display:flex; align-items:center; justify-content:center; padding:2rem 1rem; }
+.result-inner { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); padding:3rem 2rem; max-width:500px; width:100%; text-align:center; box-shadow:var(--shadow); animation:fadeUp .5s ease both; }
+.result-emoji { font-size:3.5rem; margin-bottom:1rem; }
+.result-inner h2 { font-size:1.7rem; font-weight:800; margin-bottom:.75rem; }
+.result-score { font-size:2.8rem; font-weight:900; color:var(--accent); margin-bottom:.75rem; }
+.result-msg { color:var(--muted); margin-bottom:2rem; line-height:1.5; }
+.result-stats { display:flex; gap:1rem; justify-content:center; margin-bottom:2rem; flex-wrap:wrap; }
+.stat-box { flex:1; min-width:90px; padding:1rem .75rem; border-radius:10px; border:1px solid var(--border); }
+.stat-box span { display:block; font-size:1.6rem; font-weight:800; }
+.stat-box label { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.08em; }
+.correct-box span { color:var(--accent2); } .wrong-box span { color:var(--danger); } .pct-box span { color:var(--accent); }
+#review { min-height:100vh; padding:1rem; }
+.review-header { display:flex; align-items:center; gap:1rem; padding:1rem 0 1.5rem; max-width:720px; margin:0 auto; }
+.review-header h2 { font-size:1.2rem; font-weight:700; }
+.btn-back { background:var(--surface); border:1px solid var(--border); color:var(--text); padding:.5rem 1rem; border-radius:8px; cursor:pointer; font-size:.9rem; }
+.review-list { max-width:720px; margin:0 auto; display:flex; flex-direction:column; gap:1rem; padding-bottom:3rem; }
+.review-item { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:1.25rem; }
+.review-q { font-weight:600; margin-bottom:1rem; line-height:1.5; display:flex; gap:.75rem; }
+.review-num { background:var(--danger); color:#fff; font-size:.7rem; font-weight:800; padding:.2rem .5rem; border-radius:5px; flex-shrink:0; }
+.review-options { display:flex; flex-direction:column; gap:.4rem; }
+.review-opt { padding:.55rem .85rem; border-radius:7px; font-size:.88rem; border:1px solid var(--border); display:flex; gap:.5rem; }
+.review-opt span { font-weight:700; color:var(--muted); }
+.r-correct { background:rgba(63,185,80,.1); border-color:rgba(63,185,80,.4); color:var(--accent2); }
+.r-correct span { color:var(--accent2); }
+.r-wrong { background:rgba(248,81,73,.1); border-color:rgba(248,81,73,.35); color:var(--danger); }
+.r-wrong span { color:var(--danger); }
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+.slide-in { animation:fadeUp .3s ease both; }
+@media(max-width:480px){ .question-card{padding:1.25rem} .q-text{font-size:1rem} .result-inner{padding:2rem 1.25rem} }
+  </style>
+</head>
+<body>
+
+<div id="splash">
+  <div class="splash-inner">
+    <div class="badge">КМ-06</div>
+    <h1>Ауаны баптау<br>және желдету жүйелері</h1>
+    <p class="subtitle">100 сұрақтан тұратын тест тапсырмасы</p>
+    <div class="meta-row">
+      <span>⏱ Уақыт шектеусіз</span>
+      <span>📋 100 сұрақ</span>
+      <span>✅ 4 нұсқа</span>
+    </div>
+    <button id="startBtn" class="btn-primary">Тестті бастау →</button>
+  </div>
+  <div class="bg-grid"></div>
+</div>
+
+<div id="quiz" class="hidden">
+  <header class="quiz-header">
+    <span class="header-badge">КМ-06</span>
+    <div class="progress-wrap">
+      <div class="progress-bar-bg"><div id="progressBar" class="progress-bar-fill"></div></div>
+      <span id="progressText" class="progress-label">1 / 100</span>
+    </div>
+    <span id="scoreDisplay" class="score-chip">✓ 0</span>
+  </header>
+  <main class="quiz-main">
+    <div class="question-card" id="questionCard">
+      <div class="q-number" id="qNumber">Сұрақ 1</div>
+      <div class="q-text" id="qText"></div>
+      <div class="options-grid" id="optionsGrid"></div>
+      <div id="feedback" class="feedback hidden"></div>
+      <button id="nextBtn" class="btn-next hidden">Келесі сұрақ →</button>
+    </div>
+  </main>
+</div>
+
+<div id="result" class="hidden">
+  <div class="result-inner">
+    <div id="resultEmoji" class="result-emoji">🎉</div>
+    <h2 id="resultTitle">Тамаша!</h2>
+    <div id="resultScore" class="result-score">85 / 100</div>
+    <p id="resultMsg" class="result-msg"></p>
+    <div class="result-stats">
+      <div class="stat-box correct-box"><span id="correctCount">0</span><label>Дұрыс</label></div>
+      <div class="stat-box wrong-box"><span id="wrongCount">0</span><label>Қате</label></div>
+      <div class="stat-box pct-box"><span id="pctCount">0%</span><label>Нәтиже</label></div>
+    </div>
+    <button id="retryBtn" class="btn-primary">Қайта тапсыру ↺</button>
+    <button id="reviewBtn" class="btn-outline">Қателерді қарау</button>
+  </div>
+</div>
+
+<div id="review" class="hidden">
+  <div class="review-header">
+    <button id="backBtn" class="btn-back">← Артқа</button>
+    <h2>Қателер талдауы</h2>
+  </div>
+  <div id="reviewList" class="review-list"></div>
+</div>
+
+<script>
+const QUESTIONS = [
+  {
+    q: "Ауаны баптау жүйесінің негізгі мақсаты:",
+    options: ["Ауа температурасын реттеу", "Газ тарату", "Жарық беру", "Су беру"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесі не үшін қажет?",
+    options: ["Ауаны жаңарту", "Электр өндіру", "Суды қыздыру", "Газ беру"],
+    answer: 0
+  },
+  {
+    q: "Тоңазыту жүйесі не істейді?",
+    options: ["Құрғатады", "Салқындатады", "Жылытады", "Ылғалдандырады"],
+    answer: 1
+  },
+  {
+    q: "Кондиционер қандай құрылғы?",
+    options: ["Су сорғысы", "Ауа баптағыш", "Жылытқыш", "Генератор"],
+    answer: 1
+  },
+  {
+    q: "Желдетудің түрлері:",
+    options: ["Тек табиғи", "Тек жасанды", "Электрлік", "Табиғи және жасанды"],
+    answer: 3
+  },
+  {
+    q: "Табиғи желдету қалай жүреді?",
+    options: ["Электрмен", "Газбен", "Ауа қозғалысы арқылы", "Насоспен"],
+    answer: 2
+  },
+  {
+    q: "Жасанды желдету не арқылы іске асады?",
+    options: ["Қабырға", "Терезе", "Желдеткіш", "Есік"],
+    answer: 2
+  },
+  {
+    q: "Фильтр не үшін қажет?",
+    options: ["Жарық беру", "Суды қыздыру", "Қысымды арттыру", "Ауаны тазарту"],
+    answer: 3
+  },
+  {
+    q: "Кондиционердің негізгі қызметі:",
+    options: ["Жарық беру", "Су беру", "Температураны реттеу", "Газ тарату"],
+    answer: 2
+  },
+  {
+    q: "Желдеткіштің қызметі:",
+    options: ["Ауа қозғалысын жасау", "Қысымды өлшеу", "Температураны өлшеу", "Су айдау"],
+    answer: 0
+  },
+  {
+    q: "Ауа ылғалдылығы не?",
+    options: ["Ауадағы су мөлшері", "Қысым", "Жылдамдық", "Температура"],
+    answer: 0
+  },
+  {
+    q: "Кондиционер фильтрін тазалау:",
+    options: ["Міндетті", "Сирек", "Қажет емес", "Бір рет"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесін тексеру жиілігі:",
+    options: ["Тұрақты", "10 жылда", "Жылына 1 рет", "Ешқашан"],
+    answer: 0
+  },
+  {
+    q: "Тоңазыту агенті:",
+    options: ["Май", "Фреон", "Газ", "Су"],
+    answer: 1
+  },
+  {
+    q: "Компрессор не істейді?",
+    options: ["Ауаны тазалайды", "Газды сығады", "Су қыздырады", "Жарық береді"],
+    answer: 1
+  },
+  {
+    q: "Конденсатор қызметі:",
+    options: ["Жылу шығару", "Қысым өлшеу", "Ауа беру", "Салқындату"],
+    answer: 0
+  },
+  {
+    q: "Буландырғыш не істейді?",
+    options: ["Жылытады", "Ауа тазалайды", "Салқындатады", "Қысымды арттырады"],
+    answer: 2
+  },
+  {
+    q: "Желдету арналары:",
+    options: ["Кабельдер", "Терезелер", "Құбырлар", "Сымдар"],
+    answer: 2
+  },
+  {
+    q: "Ауа алмасу дегеніміз:",
+    options: ["Су алмасу", "Жарық алмасу", "Газ алмасу", "Ауаның жаңаруы"],
+    answer: 3
+  },
+  {
+    q: "Кондиционердің қуаты нені анықтайды?",
+    options: ["Бағасын", "Түсін", "Салқындату мүмкіндігін", "Ұзындығын"],
+    answer: 2
+  },
+  {
+    q: "Ауа сапасы неге маңызды?",
+    options: ["Түс үшін", "Денсаулық үшін", "Әдемілік үшін", "Баға үшін"],
+    answer: 1
+  },
+  {
+    q: "Желдеткіштің негізгі бөлігі:",
+    options: ["Сымдар", "Шам", "Қалақтар", "Радиатор"],
+    answer: 2
+  },
+  {
+    q: "Кондиционердің ішкі блогы:",
+    options: ["Ауаны салқындатады", "Газ жинайды", "Жылу шығарады", "Су айдайды"],
+    answer: 0
+  },
+  {
+    q: "Сыртқы блок қызметі:",
+    options: ["Газ жинау", "Жылуды сыртқа шығару", "Су беру", "Ауаны тазарту"],
+    answer: 1
+  },
+  {
+    q: "Ауа фильтрінің қызметі:",
+    options: ["Жылыту", "Сақтау", "Қысым беру", "Тазарту"],
+    answer: 3
+  },
+  {
+    q: "Желдету жүйесінде ауа не арқылы қозғалады?",
+    options: ["Газ арқылы", "Жарық арқылы", "Желдеткіш арқылы", "Су арқылы"],
+    answer: 2
+  },
+  {
+    q: "Кондиционерді орнату:",
+    options: ["Сыртқа", "Дұрыс орынға", "Кез келген", "Еденге"],
+    answer: 1
+  },
+  {
+    q: "Фильтр бітелсе:",
+    options: ["Ауа сапасы төмендейді", "Жылытады", "Өзгермейді", "Жақсарады"],
+    answer: 0
+  },
+  {
+    q: "Жүйені күту:",
+    options: ["Бір рет", "Қажет емес", "Сирек", "Қажет"],
+    answer: 3
+  },
+  {
+    q: "Ауа температурасы:",
+    options: ["Қажет емес", "Бақылануы керек", "Өзгермейді", "Маңызды емес"],
+    answer: 1
+  },
+  {
+    q: "Рекуперация дегеніміз не?",
+    options: ["Жылу беру", "Жылуды қайтару", "Су тазарту", "Газ беру"],
+    answer: 1
+  },
+  {
+    q: "Ауа өткізгіштік:",
+    options: ["Ауа ағынының жылдамдығы", "Су мөлшері", "Жарық мөлшері", "Газ мөлшері"],
+    answer: 0
+  },
+  {
+    q: "Кондиционердің энергия тиімділігі:",
+    options: ["Маңызды", "Маңызды емес", "Қажет емес", "Сирек"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесіндегі шудың себебі:",
+    options: ["Ақаулар", "Қалыпты жұмыс", "Энергия үнемдеу", "Жылу беру"],
+    answer: 0
+  },
+  {
+    q: "Ауа салқындатқыш пен кондиционердің айырмасы:",
+    options: ["Айырмасы жоқ", "Функциялары бөлек", "Бірдей", "Тек баға"],
+    answer: 1
+  },
+  {
+    q: "Желдету жүйесіндегі клапан:",
+    options: ["Ауа ағынын реттейді", "Су береді", "Жарық береді", "Газ тартады"],
+    answer: 0
+  },
+  {
+    q: "Кондиционердің дренаж жүйесі:",
+    options: ["Суды шығарады", "Газ шығарады", "Жылу шығарады", "Ауа шығарады"],
+    answer: 0
+  },
+  {
+    q: "Буландырғыштың мақсаты:",
+    options: ["Жылыту", "Салқындату", "Ылғалдандыру", "Кептіру"],
+    answer: 1
+  },
+  {
+    q: "Желдету жүйесіне техникалық қызмет:",
+    options: ["Жоспарлы", "Ешқашан", "Кездейсоқ", "Жылда 1 рет"],
+    answer: 0
+  },
+  {
+    q: "Ауа баптау жүйесінде термостат не істейді?",
+    options: ["Температураны реттейді", "Ауаны тазартады", "Газ береді", "Су айдайды"],
+    answer: 0
+  },
+  {
+    q: "Кондиционердің сыртқы блогы қайда орнатылады?",
+    options: ["Сыртта", "Іште", "Жертөледе", "Шатырда"],
+    answer: 0
+  },
+  {
+    q: "Желдету арнасы бітелсе не болады?",
+    options: ["Ауа ағыны азаяды", "Ауа ағыны артады", "Өзгеріс болмайды", "Температура өседі"],
+    answer: 0
+  },
+  {
+    q: "Ауаны сүзу процесі:",
+    options: ["Ластықтарды бөледі", "Ауаны жылытады", "Газ береді", "Су тазартады"],
+    answer: 0
+  },
+  {
+    q: "Кондиционерде фреон не үшін қажет?",
+    options: ["Салқындату үшін", "Жылыту үшін", "Ылғалдандыру үшін", "Тазарту үшін"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесінің тиімді жұмысы:",
+    options: ["Ауаны дұрыс таратуға байланысты", "Бағаға байланысты", "Түске байланысты", "Мөлшерге байланысты"],
+    answer: 0
+  },
+  {
+    q: "Кондиционердің инверторлы жүйесі:",
+    options: ["Энергия үнемдейді", "Энергия шашырайды", "Тез бұзылады", "Қымбат тұрады"],
+    answer: 0
+  },
+  {
+    q: "Ауа алмасу жиілігі:",
+    options: ["Нормаға сай болуы керек", "Кез келген", "Маңызды емес", "Төмен болуы керек"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесіндегі тропик:",
+    options: ["Ауа тарататын элемент", "Су тарататын элемент", "Газ тарататын элемент", "Жарық беретін элемент"],
+    answer: 0
+  },
+  {
+    q: "Кондиционердің жылыту режимі:",
+    options: ["Бар", "Жоқ", "Мүмкін емес", "Сирек"],
+    answer: 0
+  },
+  {
+    q: "Ауа баптау жүйесінің автоматтандырылуы:",
+    options: ["Тиімділікті арттырады", "Тиімділікті азайтады", "Өзгеріс жоқ", "Зиянды"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесіндегі тынысалу жиілігі:",
+    options: ["Норма бойынша", "Кез келген", "Маңызды емес", "Төмен болуы керек"],
+    answer: 0
+  },
+  {
+    q: "Кондиционердің суық буландырғышы:",
+    options: ["Ауаны салқындатады", "Ауаны жылытады", "Ауаны тазартады", "Ауаны ылғалдандырады"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесінің жобалануы:",
+    options: ["Маңызды", "Маңызды емес", "Қажет емес", "Сирек"],
+    answer: 0
+  },
+  {
+    q: "Ауа баптау жүйесіндегі сорғы:",
+    options: ["Жылу тасымалдайды", "Ауа тасымалдайды", "Газ тасымалдайды", "Су тасымалдайды"],
+    answer: 0
+  },
+  {
+    q: "Кондиционердің тиімді пайдаланылуы:",
+    options: ["Нұсқаулыққа сай", "Кез келген жолмен", "Маңызды емес", "Сирек"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесін монтаждау:",
+    options: ["Маманға тапсырылады", "Кез келген адам жасайды", "Маңызды емес", "Сирек жасалады"],
+    answer: 0
+  },
+  {
+    q: "Ауа баптау жүйесіндегі реттегіш:",
+    options: ["Жылуды реттейді", "Ауаны реттейді", "Суды реттейді", "Газды реттейді"],
+    answer: 1
+  },
+  {
+    q: "Кондиционер шу шығарса:",
+    options: ["Ақау белгісі", "Қалыпты", "Жақсы белгі", "Маңызды емес"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесіндегі ауа қысымы:",
+    options: ["Нормаға сай болуы керек", "Жоғары болуы керек", "Төмен болуы керек", "Маңызды емес"],
+    answer: 0
+  },
+  {
+    q: "Тоңазыту жүйесінің қысымы:",
+    options: ["Өзгермелі", "Төмен болуы керек", "Маңызды емес", "Тұрақты болуы керек"],
+    answer: 3
+  },
+  {
+    q: "Ауа арнасының тазалығы:",
+    options: ["Маңызды", "Сирек", "Қажет емес", "Маңызды емес"],
+    answer: 0
+  },
+  {
+    q: "Жүйені тексеру:",
+    options: ["Бір рет", "Тұрақты", "Қажет емес", "Сирек"],
+    answer: 1
+  },
+  {
+    q: "Компрессор істен шықса:",
+    options: ["Су көбейеді", "Салқындату тоқтайды", "Жүйе жұмыс істейді", "Жылу артады"],
+    answer: 1
+  },
+  {
+    q: "Фреон жетіспесе:",
+    options: ["Жұмыс жақсарады", "Шу азаяды", "Қысым өседі", "Салқындату төмендейді"],
+    answer: 3
+  },
+  {
+    q: "Желдету жүйесінің мақсаты:",
+    options: ["Газ беру", "Жарық беру", "Су беру", "Ауаны жаңарту"],
+    answer: 3
+  },
+  {
+    q: "Ауа температурасы:",
+    options: ["Қажет емес", "Маңызды", "Сирек", "Маңызды емес"],
+    answer: 1
+  },
+  {
+    q: "Жүйе жұмысы:",
+    options: ["Тұрақты болуы керек", "Өзгермелі", "Қажет емес", "Сирек"],
+    answer: 0
+  },
+  {
+    q: "Кондиционердің тиімділігі:",
+    options: ["Бағасына", "Түсіне", "Ұзындығына", "Қызмет көрсетуге байланысты"],
+    answer: 3
+  },
+  {
+    q: "Желдету жүйесін тазалау:",
+    options: ["Қажет", "Бір рет", "Қажет емес", "Сирек"],
+    answer: 0
+  },
+  {
+    q: "Желдету жүйесіндегі ауа жылдамдығы:",
+    options: ["Төмен болуы керек", "Маңызды емес", "Өте жоғары болуы керек", "Нормаға сай болуы керек"],
+    answer: 3
+  },
+  {
+    q: "Кондиционердің ішкі блогы не істейді?",
+    options: ["Ауаны салқындатады", "Жылу шығарады", "Газ жинайды", "Су айдайды"],
+    answer: 0
+  },
+  {
+    q: "Сыртқы блоктың қызметі:",
+    options: ["Су беру", "Жылуды сыртқа шығару", "Ауаны тазарту", "Газ жинау"],
+    answer: 1
+  },
+  {
+    q: "Желдеткіштің қалақтары:",
+    options: ["Су айдайды", "Газ береді", "Әдемілік үшін", "Ауа қозғалысын қамтамасыз етеді"],
+    answer: 3
+  },
+  {
+    q: "Ауа фильтрін ауыстыру жиілігі:",
+    options: ["10 жылда", "Қажет емес", "Уақытында", "Бір рет"],
+    answer: 2
+  },
+  {
+    q: "Кондиционердің дренаж жүйесі:",
+    options: ["Газ тасымалдайды", "Қысымды арттырады", "Суды шығарады", "Ауаны тазалайды"],
+    answer: 2
+  },
+  {
+    q: "Желдету жүйесіндегі шу:",
+    options: ["Қажет", "Ақау белгісі", "Қалыпты", "Пайдалы"],
+    answer: 1
+  },
+  {
+    q: "Ауа алмасу нормасы:",
+    options: ["Төмен болуы керек", "Жоғары болуы керек", "Қажет емес", "Стандартқа сай"],
+    answer: 3
+  },
+  {
+    q: "Тоңазыту жүйесіндегі негізгі элемент:",
+    options: ["Терезе", "Компрессор", "Құбыр", "Есік"],
+    answer: 1
+  },
+  {
+    q: "Жүйенің герметикалығы:",
+    options: ["Қажет емес", "Маңызды", "Маңызды емес", "Сирек"],
+    answer: 1
+  },
+  {
+    q: "Фреон ағып кетсе:",
+    options: ["Пайдалы", "Қалыпты", "Қауіпті", "Әсер етпейді"],
+    answer: 2
+  },
+  {
+    q: "Кондиционердің дұрыс жұмысы:",
+    options: ["Тыныш жұмыс істейді", "Шу шығарады", "Қысым жоқ", "Су ағызады"],
+    answer: 0
+  },
+  {
+    q: "Желдету арналарының бітелуі:",
+    options: ["Жақсы", "Жаман", "Қажет", "Пайдалы"],
+    answer: 1
+  },
+  {
+    q: "Ауа температурасының өзгеруі:",
+    options: ["Қажет емес", "Тұрақсыз болуы керек", "Маңызды емес", "Реттелуі керек"],
+    answer: 3
+  },
+  {
+    q: "Қызмет көрсету уақыты:",
+    options: ["Қажет емес", "Бір рет", "Сирек", "Жоспарлы"],
+    answer: 3
+  },
+  {
+    q: "Желдету жүйесінің қауіпсіздігі:",
+    options: ["Қажет емес", "Сирек", "Маңызды емес", "Маңызды"],
+    answer: 3
+  },
+  {
+    q: "Кондиционердің тиімділігі төмен болса:",
+    options: ["Жақсы", "Қалыпты", "Тексеру қажет", "Қажет емес"],
+    answer: 2
+  },
+  {
+    q: "Ауа сапасының төмендеуі:",
+    options: ["Қажет", "Пайдалы", "Қауіпсіз", "Зиянды"],
+    answer: 3
+  },
+  {
+    q: "Желдеткіштің тоқтауы:",
+    options: ["Ақау", "Қажет", "Пайдалы", "Қалыпты"],
+    answer: 0
+  },
+  {
+    q: "Кондиционерді дұрыс пайдалану:",
+    options: ["Нұсқаулыққа сай", "Қалағандай", "Қажет емес", "Сирек"],
+    answer: 0
+  },
+  {
+    q: "Жүйені іске қосу:",
+    options: ["Сирек", "Қажет емес", "Тексерусіз", "Тексеруден кейін"],
+    answer: 3
+  },
+  {
+    q: "Тоңазыту жүйесінің қысымы:",
+    options: ["Төмен болуы керек", "Маңызды емес", "Жоғары болуы керек", "Қалыпты болуы керек"],
+    answer: 3
+  },
+  {
+    q: "Желдету жүйесінің жұмысы:",
+    options: ["Сирек", "Тұрақты", "Өзгермелі", "Қажет емес"],
+    answer: 1
+  },
+  {
+    q: "Кондиционер фильтрінің тазалығы:",
+    options: ["Маңызды", "Қажет емес", "Маңызды емес", "Сирек"],
+    answer: 0
+  },
+  {
+    q: "Жүйедегі ақаулар:",
+    options: ["Қажет емес", "Жою қажет", "Кейін", "Елемеуге болады"],
+    answer: 1
+  },
+  {
+    q: "Қауіпсіздік талаптары:",
+    options: ["Сирек", "Міндетті емес", "Қажет емес", "Міндетті"],
+    answer: 3
+  },
+  {
+    q: "Ауа ылғалдылығы:",
+    options: ["Бақылануы керек", "Маңызды емес", "Өзгермелі", "Қажет емес"],
+    answer: 0
+  },
+  {
+    q: "Жүйе тиімділігі:",
+    options: ["Бағасына", "Ұзындығына", "Қызмет көрсетуге байланысты", "Түсіне"],
+    answer: 2
+  },
+  {
+    q: "Желдету жүйесін пайдалану:",
+    options: ["Қалағандай", "Ережеге сай", "Қажет емес", "Сирек"],
+    answer: 1
+  },
+  {
+    q: "Ауаны баптау жүйесін дұрыс ұстау:",
+    options: ["Су азайтады", "Тиімділік береді", "Қажет емес", "Шығын арттырады"],
+    answer: 1
+  }
+];
+// ── State ─────────────────────────────────────────────
+let questions = [];
+let current = 0;
+let score = 0;
+let answered = false;
+let wrongAnswers = [];
+
+// ── DOM refs ──────────────────────────────────────────
+const splash       = document.getElementById('splash');
+const quizScreen   = document.getElementById('quiz');
+const resultScreen = document.getElementById('result');
+const reviewScreen = document.getElementById('review');
+
+const startBtn   = document.getElementById('startBtn');
+const nextBtn    = document.getElementById('nextBtn');
+const retryBtn   = document.getElementById('retryBtn');
+const reviewBtn  = document.getElementById('reviewBtn');
+const backBtn    = document.getElementById('backBtn');
+
+const qNumber    = document.getElementById('qNumber');
+const qText      = document.getElementById('qText');
+const optionsGrid= document.getElementById('optionsGrid');
+const feedback   = document.getElementById('feedback');
+const progressBar= document.getElementById('progressBar');
+const progressTxt= document.getElementById('progressText');
+const scoreDisp  = document.getElementById('scoreDisplay');
+
+// ── Helpers ───────────────────────────────────────────
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function show(el) { el.classList.remove('hidden'); }
+function hide(el) { el.classList.add('hidden'); }
+
+// ── Init ──────────────────────────────────────────────
+function initQuiz() {
+  questions = shuffle([...QUESTIONS]);
+  current = 0;
+  score = 0;
+  answered = false;
+  wrongAnswers = [];
+  scoreDisp.textContent = '✓ 0';
+  renderQuestion();
+}
+
+// ── Render question ───────────────────────────────────
+function renderQuestion() {
+  answered = false;
+  const q = questions[current];
+  const labels = ['A', 'B', 'C', 'D'];
+
+  // Progress
+  const pct = ((current) / questions.length) * 100;
+  progressBar.style.width = pct + '%';
+  progressTxt.textContent = `${current + 1} / ${questions.length}`;
+
+  // Card entrance
+  const card = document.getElementById('questionCard');
+  card.classList.remove('slide-in');
+  void card.offsetWidth;
+  card.classList.add('slide-in');
+
+  qNumber.textContent = `Сұрақ ${current + 1}`;
+  qText.textContent = q.q;
+
+  // Options
+  optionsGrid.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.innerHTML = `<span class="opt-label">${labels[i]}</span><span class="opt-text">${opt}</span>`;
+    btn.addEventListener('click', () => selectAnswer(i, btn, q.answer));
+    optionsGrid.appendChild(btn);
+  });
+
+  hide(feedback);
+  hide(nextBtn);
+}
+
+// ── Answer selection ──────────────────────────────────
+function selectAnswer(idx, btn, correctIdx) {
+  if (answered) return;
+  answered = true;
+
+  const allBtns = optionsGrid.querySelectorAll('.option-btn');
+
+  allBtns.forEach(b => b.disabled = true);
+
+  if (idx === correctIdx) {
+    btn.classList.add('correct');
+    score++;
+    scoreDisp.textContent = `✓ ${score}`;
+    feedback.className = 'feedback correct-fb';
+    feedback.innerHTML = '✅ Дұрыс!';
+  } else {
+    btn.classList.add('wrong');
+    allBtns[correctIdx].classList.add('correct');
+    feedback.className = 'feedback wrong-fb';
+    feedback.innerHTML = `❌ Қате! Дұрыс жауап: <strong>${['A','B','C','D'][correctIdx]}</strong>`;
+    wrongAnswers.push({ q: questions[current], chosen: idx });
+  }
+
+  show(feedback);
+  show(nextBtn);
+
+  if (current === questions.length - 1) {
+    nextBtn.textContent = 'Нәтижені көру →';
+  } else {
+    nextBtn.textContent = 'Келесі сұрақ →';
+  }
+}
+
+// ── Next ──────────────────────────────────────────────
+nextBtn.addEventListener('click', () => {
+  current++;
+  if (current < questions.length) {
+    renderQuestion();
+  } else {
+    showResult();
+  }
+});
+
+// ── Result ────────────────────────────────────────────
+function showResult() {
+  hide(quizScreen);
+  show(resultScreen);
+
+  const pct = Math.round((score / questions.length) * 100);
+  const wrong = questions.length - score;
+
+  document.getElementById('correctCount').textContent = score;
+  document.getElementById('wrongCount').textContent = wrong;
+  document.getElementById('pctCount').textContent = pct + '%';
+  document.getElementById('resultScore').textContent = `${score} / ${questions.length}`;
+
+  let emoji, title, msg;
+  if (pct >= 90) {
+    emoji = '🏆'; title = 'Керемет нәтиже!'; msg = 'Сіз тестті өте жоғары деңгейде тапсырдыңыз!';
+  } else if (pct >= 70) {
+    emoji = '🎉'; title = 'Жақсы нәтиже!'; msg = 'Материалды жақсы білесіз. Аздап жаттықсаңыз болады.';
+  } else if (pct >= 50) {
+    emoji = '📚'; title = 'Орташа нәтиже'; msg = 'Материалды қайта қарап, тестті қайта тапсырып көріңіз.';
+  } else {
+    emoji = '💪'; title = 'Көп жаттығу керек'; msg = 'Материалды тереңдетіп оқу ұсынылады.';
+  }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultMsg').textContent = msg;
+
+  if (wrongAnswers.length === 0) {
+    reviewBtn.style.display = 'none';
+  } else {
+    reviewBtn.style.display = 'inline-flex';
+  }
+}
+
+// ── Retry ─────────────────────────────────────────────
+retryBtn.addEventListener('click', () => {
+  hide(resultScreen);
+  show(quizScreen);
+  initQuiz();
+});
+
+// ── Review ────────────────────────────────────────────
+reviewBtn.addEventListener('click', () => {
+  hide(resultScreen);
+  show(reviewScreen);
+  buildReview();
+});
+
+backBtn.addEventListener('click', () => {
+  hide(reviewScreen);
+  show(resultScreen);
+});
+
+function buildReview() {
+  const list = document.getElementById('reviewList');
+  list.innerHTML = '';
+  const labels = ['A', 'B', 'C', 'D'];
+
+  wrongAnswers.forEach((item, idx) => {
+    const { q, chosen } = item;
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.innerHTML = `
+      <div class="review-q"><span class="review-num">${idx + 1}</span>${q.q}</div>
+      <div class="review-options">
+        ${q.options.map((opt, i) => `
+          <div class="review-opt ${i === q.answer ? 'r-correct' : i === chosen ? 'r-wrong' : ''}">
+            <span>${labels[i]}</span> ${opt}
+            ${i === q.answer ? ' ✅' : i === chosen ? ' ❌' : ''}
+          </div>
+        `).join('')}
+      </div>
+    `;
+    list.appendChild(div);
+  });
+}
+
+// ── Start ─────────────────────────────────────────────
+startBtn.addEventListener('click', () => {
+  hide(splash);
+  show(quizScreen);
+  initQuiz();
+});
+</script>
+
+</body>
+</html>
